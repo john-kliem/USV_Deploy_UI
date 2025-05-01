@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>USV Pyquaticus Deployer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>USV Pyquaticus Deployer</h1>
+
+        {% for team, agents in teams.items() %}
+        <div class="team-card">
+            <h2 class="team-header {{ team }}">{{ team | capitalize }} Team</h2>
+            <div class="agent-list">
+                {% for agent in agents %}
+                <div class="agent-entry">
+                    <div><strong>Team Name:</strong> {{ agent.team_name }}</div>
+                    <div><strong>Boat Name:</strong> {{ agent.boat_name }}</div>
+                    <div><strong>IP:</strong> {{ agent.ip }}</div>
+                    <div><strong>Port:</strong> {{ agent.port }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <form action="{{ url_for('submit') }}" method="POST" class="submission-form">
+                <input type="hidden" name="team" value="{{ team }}">
+                <label for="{{ team }}_zip">Deploy ZIP:</label>
+                <select name="zip_file" id="{{ team }}_zip" required>
+                    <option value="">-- Select ZIP --</option>
+                    {% for zip in zip_files %}
+                        <option value="{{ zip }}">{{ zip }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Copy to USV</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

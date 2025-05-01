@@ -1,0 +1,32 @@
+{
+  "teams": {
+    "blue": [
+      {"name":"blue_one",
+        "boat_name":"s",
+      "ip": "localhost", 
+       "port": 9015},
+       {"name":"blue_two",
+        "boat_name":"t",
+      "ip": "localhost", 
+       "port": 9016},
+       {"name":"blue_three",
+        "boat_name":"u",
+      "ip": "localhost", 
+       "port": 9017}
+    ],
+    "red": [
+      {"name":"red_one",
+        "boat_name":"v",
+      "ip": "localhost", 
+       "port": 9011},
+       {"name":"red_two",
+        "boat_name":"w",
+      "ip": "localhost", 
+       "port": 9012},
+       {"name":"red_three",
+        "boat_name":"x",
+      "ip": "localhost", 
+       "port": 9013}
+    ]
+  }
+}
