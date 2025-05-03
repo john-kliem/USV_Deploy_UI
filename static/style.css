@@ -42,20 +42,34 @@ h1 {
 .team-header.blue {
     color: #3498db;
 }
-
 .agent-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    flex-direction: column;
+    gap: 1em;
 }
 
 .agent-entry {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     background-color: #f9f9f9;
-    padding: 0.75rem 1rem;
-    border-left: 4px solid #bdc3c7;
-    border-radius: 6px;
-    flex: 1 1 300px;
+}
+
+.agent-info {
+    flex: 1;
+}
+
+.agent-buttons {
+    display: flex;
+    gap: 0.5em;
+}
+
+.agent-buttons form {
+    display: inline;
 }
 
 .submission-form {

@@ -12,20 +12,40 @@
         {% for team, agents in teams.items() %}
         <div class="team-card">
             <h2 class="team-header {{ team }}">{{ team | capitalize }} Team</h2>
+
             <div class="agent-list">
                 {% for agent in agents %}
                 <div class="agent-entry">
-                    <div><strong>Team Name:</strong> {{ agent.team_name }}</div>
-                    <div><strong>Boat Name:</strong> {{ agent.boat_name }}</div>
-                    <div><strong>IP:</strong> {{ agent.ip }}</div>
-                    <div><strong>Port:</strong> {{ agent.port }}</div>
+                    <div class="agent-info">
+                        <div><strong>Boat ID:</strong> {{ agent.boat_id }}</div>
+                        <div><strong>Boat Name:</strong> {{ agent.boat_name }}</div>
+                        <div><strong>IP:</strong> {{ agent.ip }}</div>
+                        <div><strong>Port:</strong> {{ agent.port }}</div>
+                    </div>
+                    <div class="agent-buttons">
+                        {% for action, label in [
+                            ('deploy_usv', 'D-USV'),
+                        ] %}
+                        <form action="{{ url_for('agent_action') }}" method="POST">
+                            <input type="hidden" name="team" value="{{ team }}">
+                            <input type="hidden" name="boat_id" value="{{ agent.boat_id }}">
+                            <input type="hidden" name="boat_name" value="{{ agent.boat_name }}">
+                            <input type="hidden" name="boat_ip" value="{{ agent.ip }}">
+                            <input type="hidden" name="boat_port" value="{{ agent.port }}">
+                            <input type="hidden" name="action" value="{{ action }}">
+                            <button type="submit">{{ label }}</button>
+                        </form>
+                        
+                        {% endfor %}
+                        <button onclick="copyCommand('{{ team }}', '{{ agent.boat_id }}', '{{ agent.boat_name }}', '{{ agent.ip }}', '{{ agent.port }}', '{{ action }}')">C-USV</button>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
 
             <form action="{{ url_for('submit') }}" method="POST" class="submission-form">
                 <input type="hidden" name="team" value="{{ team }}">
-                <label for="{{ team }}_zip">Deploy ZIP:</label>
+                <label for="{{ team }}_zip">Available ZIPs:</label>
                 <select name="zip_file" id="{{ team }}_zip" required>
                     <option value="">-- Select ZIP --</option>
                     {% for zip in zip_files %}
@@ -38,4 +58,52 @@
         {% endfor %}
     </div>
 </body>
+<script>
+async function copyCommand(team, boat_id, boat_name, boat_ip, boat_port, target) {
+    const filename = "test.zip";  // dummy test value
+
+    try {
+        const response = await fetch("/get_rsync_command", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({team, boat_id, boat_name, boat_ip, boat_port, target})
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            await navigator.clipboard.writeText(data.command);
+            alert(`Copied Command to Clipboard\n${data.command}`);
+        } else {
+            alert("Server error: " + (data.error || "Unknown"));
+        }
+    } catch (err) {
+        alert("Fetch failed: " + err);
+    }
+}
+</script>
+<!-- <script>
+async function copyCommand(team, ip, target) {
+    try {
+        const response = await fetch("/get_rsync_command", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ team, ip, target, filename })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            await navigator.clipboard.writeText(data.command);
+            alert(`Copied ${target.toUpperCase()} command to clipboard:\n${data.command}`);
+        } else {
+            alert("Error from server: " + (data.error || "Unknown error"));
+        }
+    } catch (err) {
+        alert("Failed to fetch command: " + err);
+    }
+}
+</script> -->
 </html>
