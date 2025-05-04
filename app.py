@@ -58,9 +58,9 @@ def agent_action():
     command = ''
 
     if config['shore_ip'] == 'localhost':    
-        command = f"python submission_runner.py --entry_name=test.zip --sim --color={team} --boat_id={boat_id} --boat_name={boat_name} --timewarp=4 --shore_ip={config['shore_ip']} --boat_ip={boat_ip} --boat_port={boat_port}"#f"sshpass -p '{PASSWORD}' rsync -av --progress ./submissions/{filename} {USERNAME}@{ip}:{dest_path}"
+        command = f"python submission_runner.py --entry_name=./{team}_entry/test.zip --sim --color={team} --boat_id={boat_id} --boat_name={boat_name} --timewarp=4 --shore_ip={config['shore_ip']} --boat_ip={boat_ip} --boat_port={boat_port}"#f"sshpass -p '{PASSWORD}' rsync -av --progress ./submissions/{filename} {USERNAME}@{ip}:{dest_path}"
     else:
-        command = f"python submission_runner.py --entry_name=test.zip --color={team} --boat_id={boat_id} --boat_name={boat_name} --timewarp=1 --shore_ip={config['shore_ip']} --boat_ip={boat_ip} --boat_port={boat_port}"
+        command = f"python submission_runner.py --entry_name=./{team}_entry/test.zip --color={team} --boat_id={boat_id} --boat_name={boat_name} --timewarp=1 --shore_ip={config['shore_ip']} --boat_ip={boat_ip} --boat_port={boat_port}"
         command = f"sshpass -p {PASSWORD} ssh {USERNAME}@{boat_ip} " + command
     subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', f"{command}; exec bash"])
     return redirect(url_for('index'))
@@ -72,16 +72,16 @@ def handle_submission(team, zip_file):
     file_path = ""
     if config['shore_ip'] == 'localhost': #We are running in sim copy team files to local dirs
         #Ensure the folder can only ever have one entry 
-        subprocess.run(["rm", "-rf", f"~/USV_Deploy_UI/{team}_entry"])
-        subprocess.run(["mkdir", "-p", f"~/USV_Deploy_UI/{team}_entry"])
+        subprocess.run(["rm", "-rf", f"./{team}_entry"])
+        subprocess.run(["mkdir", "-p", f"./{team}_entry"])
 
 
         if 'red' == team:
-            file_path = '~/USV_Deploy_UI/red_entry/test.zip'
+            file_path = './red_entry/test.zip'
         else:
-            file_path = '~/USV_Deploy_UI/blue_entry/test.zip'
+            file_path = './blue_entry/test.zip'
     if config['shore_ip'] == 'localhost':
-        command = "cp ~/USV_Deploy_UI/submissions/"+zip_file+" "+file_path+" ; exec bash"
+        command = "cp ./submissions/"+zip_file+" "+file_path+" ; exec bash"
         subprocess.Popen(['gnome-terminal','--', 'bash', '-c', command]) #Launch MacOS/Linux machines 
     else:
         for bot in config['teams'][team]:

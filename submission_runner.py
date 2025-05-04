@@ -8,6 +8,7 @@ import argparse
 import signal
 import sys
 
+
 entry_docker = None
 def signal_handler(sig, frame):
     if entry_docker:
@@ -20,21 +21,25 @@ def signal_handler(sig, frame):
 def run_game(entry_path, sim, color, boat_id, boat_name, timewarp, shore_ip, boat_ip, boat_port):
     global entry_docker
     client = docker.from_env()
-    entry_docker = client.containers.run('jkliem/wp25:latest', command="sleep infinity", detach=True, network_mode='host')
-    subprocess.run(['docker','cp', entry_path, str(entry_docker.short_id)+':/home/moos/workingdir/test.zip']) #Copy file into new docker
+    entry_docker = client.containers.run('jkliem/wp25:v2',command='sleep infinity', detach=True, network_mode='host')
+    #entry_docker.start()
+    subprocess.run(['docker','cp', entry_path, str(entry_docker.short_id)+':/home/moos/working_dir/test.zip']) #Copy file into new docker
+    #Unzip copied entry
+    print(entry_docker.exec_run('unzip /home/moos/working_dir/test.zip -d /home/moos/working_dir/'))
     if sim:
         arguments = '--sim'
     else:
         arguments = ' '
-    arguments += '--color ' + color
-    arguments += ' --boat_id ' + boat_id
-    arguments += ' --boat_name' + boat_name
-    arguments += ' --timewarp ' + str(timewarp)
+    arguments += ' --color=' + color
+    arguments += ' --boat_id=' + boat_id
+    arguments += ' --boat_name=' + boat_name
+    arguments += ' --timewarp=' + str(timewarp)
     arguments += ' --shore_ip ' + shore_ip 
-    arguments += ' --boat_ip ' + boat_ip 
-    arguments += ' --boat_port ' + boat_port
+    arguments += ' --boat_ip='+ boat_ip 
+    arguments += ' --boat_port=' + str(boat_port)
     print("Launching with Arguments: ", arguments)
-    entry_docker.exec_run('sh -c "python3.10 -u pyquaticus_moos_launcher.py '+arguments+' > out.txt 2>&1"', detach=True)# Run Entry
+    print("Entry Docker: ", entry_docker.short_id)
+    entry_docker.exec_run('sh -c "python3 -u pyquaticus_moos_launcher.py '+arguments+' > out.txt 2>&1"', detach=True)# Run Entry
     return 
 
 
@@ -51,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument('--boat_ip', required=True, type=str, default='localhost', help='Specify the USV IP.')
     parser.add_argument('--boat_port', required=True, type=int, default=9012, help='Specify the USV Port to Use.')
     args = parser.parse_args()
-    entry_path = entry_folder + args.entry_name
+    entry_path = args.entry_name
     signal.signal(signal.SIGINT, signal_handler)
     run_game(entry_path, args.sim, args.color, args.boat_id, args.boat_name, args.timewarp, args.shore_ip, args.boat_ip, args.boat_port)
     signal.pause()
